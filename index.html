@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Customer EMI Portal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 30px 20px 80px;
+    max-width: 1200px;
+    margin: auto;
+    color: #1f2937;
+    background: linear-gradient(-45deg, #dbeafe, #f0fdfa, #fef3c7, #ede9fe);
+    background-size: 400% 400%;
+    animation: gradientBG 20s ease infinite;
+    position: relative;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  @keyframes gradientBG {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+  }
+  h1#logoHeader {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+    line-height: 1.2;
+    animation: colorCycle 6s infinite alternate;
+  }
+  h2#subHeader {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+  }
+  h2#subHeader:hover {
+      background-color: rgba(0,0,0,0.05);
+  }
+  .header-container {
+      text-align: center;
+  }
+
+  /* Top toolbar */
+  .top-toolbar{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    align-items:center;
+    margin: 10px auto 18px;
+    flex-wrap: wrap;
+  }
+  .top-toolbar button{
+    border: none;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .top-toolbar button:active{ transform: scale(0.98); }
+  .top-toolbar button:hover{ filter: brightness(1.03); }
+  #refreshDataBtn{ background:#22c55e; color:#062; }
+  /* #downloadDataBtn removed for security */
+  .data-status{
+    font-weight:700;
+    color:#374151;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.55);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  @keyframes colorCycle {
+    0% { color: #2563eb; }
+    50% { color: #16a34a; }
+    100% { color: #dc2626; }
+  }
+  #search {
+    width: 100%;
+    max-width: 500px;
+    display: block;
+    margin: 20px auto 15px auto;
+    padding: 14px 20px;
+    border: 2px solid #2563eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .section-title {
+    font-size: 1.3rem;
+    margin: 30px 0 15px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .red-ball { background-color: #dc2626; }
+  .green-ball { background-color: #16a34a; }
+  .table-container {
+    overflow-x: auto;
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    position: relative;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+  th, td {
+    padding: 15px 10px;
+    border: 1px solid #e5e7eb;
+    text-align: left;
+    word-wrap: break-word;
+    white-space: nowrap; 
+  }
+  th {
+    background: #2563eb;
+    color: white;
+    font-weight: bold;
+  }
+  tr:nth-child(even) td { background: #f9fafb; }
+  td a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  td a:hover {
+    text-decoration: underline;
+  }
+
+  .details-header {
+      background-color: #0D47A1;
+      color: white;
+      padding: 10px;
+      font-size: 1.2rem;
+      text-align: center;
+      font-weight: bold;
+      margin: 20px 0 0 0;
+  }
+  .customer-info-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #ccc;
+      border-top: none;
+  }
+  .customer-info-table th, .customer-info-table td {
+      border: 1px solid #ccc;
+      padding: 8px 10px;
+      word-wrap: break-word;
+      white-space: normal;
+  }
+  .customer-info-table th {
+      background-color: #E3F2FD;
+      font-weight: 600;
+      width: 35%;
+      text-align: left;
+      color: #1f2937;
+  }
+  .payment-details-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #ccc;
+      border-top: none;
+      margin-top: 0;
+  }
+  .payment-details-table th, .payment-details-table td {
+      border: 1px solid #ccc;
+      padding: 8px 10px;
+      text-align: left;
+      white-space: normal;
+  }
+  .payment-details-table thead th {
+      background-color: #0D47A1;
+      color: white;
+      font-weight: bold;
+  }
+  .payment-details-table tbody tr:nth-child(even) {
+      background-color: #f9fafb;
+  }
+  
+  .complete-details-table { 
+    width: 100%;
+    border: 1px solid #16a34a; 
+  }
+  #complete-results .complete-details-table thead th { 
+      background-color: #16a34a; 
+      color: #ffffff; 
+      text-align: center; 
+      font-size: 1.2rem; 
+      padding: 12px; 
+  }
+  #complete-results .complete-details-table tbody th { 
+      background-color: #D1FFBD !important;
+      font-weight: bold; 
+      color: #000000 !important;
+      width: 35%;
+      white-space: normal;
+      word-break: break-word;
+  }
+  .complete-details-table tbody td { 
+      background-color: #ffffff; 
+      white-space: normal; 
+      word-break: break-word;
+  }
+  .complete-details-table tbody tr:nth-child(even) td { 
+      background-color: #f8f8f8;
+  }
+
+  /* Customer image (centered above details) */
+  .customer-image-wrap{
+      text-align: center;
+      margin: 14px 0 10px 0;
+  }
+  .customer-image-title{
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+  }
+  .customer-image-wrap img{
+      display: block;
+      width: min(360px, 100%);
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+
+  .due { color: #dc2626; font-weight: 700; }
+  #homeButton {
+    display: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid #0D47A1;
+    background-color: #e3f2fd;
+    color: #0D47A1;
+    margin-bottom: 10px;
+  }
+
+  .share-button-new, .payment-details-button, .emi-collect-button {
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    display: inline-block;
+  }
+  .share-button-new { background-color: #2563eb; }
+  .payment-details-button { background-color: #6b7280; }
+  .emi-collect-button { background-color: #ca8a04; }
+  
+  .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+  }
+  
+  .single-result-actions {
+      text-align: center;
+      margin-top: 20px;
+  }
+
+  #running-results table th,
+  #running-results table td {
+      border: 1px solid #2563eb;
+  }
+  
+  #complete-results table th {
+      background-color: #16a34a;
+  }
+  #complete-results table th,
+  #complete-results table td {
+      border: 1px solid #16a34a;
+  }
+  
+  footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    color: #4b5563;
+  }
+  footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #1f2937;
+    cursor: pointer;
+  }
+  #poweredByLogo {
+    max-height: 40px;
+  }
+
+  #animation-overlay, #fine-alert-overlay, #first-emi-alert-overlay, #emi-collect-overlay, #slip-display-overlay, #success-alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    background-color: rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  #animation-overlay.visible, #fine-alert-overlay.visible, #first-emi-alert-overlay.visible, #emi-collect-overlay.visible, #slip-display-overlay.visible, #success-alert-overlay.visible {
+    display: flex;
+    opacity: 1;
+  }
+  
+  #fine-alert-modal, #first-emi-alert-modal, #emi-collect-modal, #slip-display-modal, #success-alert-modal {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    max-width: 400px;
+    width: 95%;
+  }
+  #fine-alert-overlay.visible #fine-alert-modal, 
+  #first-emi-alert-overlay.visible #first-emi-alert-modal,
+  #emi-collect-overlay.visible #emi-collect-modal,
+  #slip-display-overlay.visible #slip-display-modal,
+  #success-alert-overlay.visible #success-alert-modal {
+    transform: scale(1);
+  }
+
+  #fine-alert-modal { border-top: 10px solid #dc2626; }
+  #fine-alert-icon { font-size: 4rem; line-height: 1; animation: caution-pulse 1s infinite; }
+  @keyframes caution-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+  #fine-alert-modal h2 { color: #dc2626; margin: 15px 0 5px 0; }
+  #fine-amount-text { color: #dc2626; font-weight: bold; margin-bottom: 20px; }
+  #fine-alert-close-btn { background-color: #dc2626; color: white; }
+
+  #first-emi-alert-modal { border-top: 10px solid #2563eb; }
+  #first-emi-alert-icon { font-size: 4rem; line-height: 1; }
+  #first-emi-alert-modal h2 { color: #2563eb; margin: 15px 0 5px 0; }
+  #first-emi-calculation { font-size: 1.2rem; font-weight: bold; color: #1f2937; margin-bottom: 20px; }
+  #first-emi-alert-close-btn { background-color: #2563eb; color: white; }
+  
+  #fine-alert-close-btn, #first-emi-alert-close-btn, #success-alert-close-btn {
+      padding: 10px 25px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+  }
+
+  /* Success Alert Modal */
+  #success-alert-modal { border-top: 10px solid #16a34a; }
+  #success-alert-modal h2 { color: #16a34a; margin: 15px 0 5px 0; }
+  #success-alert-icon { font-size: 4rem; line-height: 1; }
+  #success-alert-close-btn { background-color: #16a34a; }
+
+
+  /* EMI Collect Modal Styles */
+  #emi-collect-modal { border-top: 10px solid #ca8a04; }
+  #emi-collect-modal h2 { color: #ca8a04; margin-top: 0; }
+  .collect-form-group { text-align: left; margin-bottom: 15px; }
+  .collect-form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
+  .collect-form-group input { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+  .modal-actions button { padding: 10px 25px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; }
+  #collect-submit-btn { background-color: #ca8a04; }
+  #collect-submit-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+  #collect-close-btn { background-color: #6b7280; }
+  
+  /* Slip Display Styles */
+  #slip-container {
+      background-color: #fff;
+      border: 2px solid #0D47A1;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: left;
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.6;
+  }
+  #slip-container h3, #slip-container h4 {
+      text-align: center;
+      color: #0D47A1;
+      margin-top: 0;
+      margin-bottom: 10px;
+  }
+  #slip-container hr { border: none; border-top: 1px dashed #0D47A1; margin: 15px 0; }
+  #share-slip-btn { background-color: #16a34a; margin-top: 20px; display: block; width: 100%; }
+
+  .table-container.unzip {
+    animation: unzip 0.8s ease-out forwards;
+    transform-origin: top;
+  }
+  @keyframes unzip {
+    from { transform: scaleY(0); opacity: 0.5; }
+    to { transform: scaleY(1); opacity: 1; }
+  }
+
+  #logo-animation-overlay, #search-animation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(10, 10, 20, 0.8);
+    backdrop-filter: blur(5px);
+    pointer-events: none;
+    overflow: hidden;
+  }
+  #logo-animation-overlay.active, #search-animation-overlay.active { display: flex; }
+  
+  #telepoint-animation-container, #search-animation-container {
+      display: flex;
+      font-size: clamp(2rem, 10vw, 6rem);
+      font-weight: 800;
+      font-family: 'Segoe UI', sans-serif;
+  }
+  #telepoint-animation-container span, #search-animation-container span {
+      opacity: 0;
+      transform: scale(0.5);
+  }
+
+  #telepoint-animation-container span { animation: teleport-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+  #telepoint-animation-container span:nth-child(1) { color: #ef4444; animation-delay: 0.1s; }
+  #telepoint-animation-container span:nth-child(2) { color: #f97316; animation-delay: 0.2s; }
+  #telepoint-animation-container span:nth-child(3) { color: #eab308; animation-delay: 0.3s; }
+  #telepoint-animation-container span:nth-child(4) { color: #84cc16; animation-delay: 0.4s; }
+  #telepoint-animation-container span:nth-child(5) { color: #22c55e; animation-delay: 0.5s; }
+  #telepoint-animation-container span:nth-child(6) { color: #14b8a6; animation-delay: 0.6s; animation-name: teleport-in, pulse-scan; animation-duration: 0.5s, 1.5s; animation-iteration-count: 1, infinite; animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275), ease-in-out; animation-delay: 0.6s, 1.1s;}
+  #telepoint-animation-container span:nth-child(7) { color: #3b82f6; animation-delay: 0.7s; }
+  #telepoint-animation-container span:nth-child(8) { color: #8b5cf6; animation-delay: 0.8s; }
+  #telepoint-animation-container span:nth-child(9) { color: #d946ef; animation-delay: 0.9s; }
+  
+  #search-animation-container span { animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+  #search-animation-container span:nth-child(1) { color: #ef4444; animation-delay: 0.1s; }
+  #search-animation-container span:nth-child(2) { color: #f97316; animation-delay: 0.15s; }
+  #search-animation-container span:nth-child(3) { color: #eab308; animation-delay: 0.2s; }
+  #search-animation-container span:nth-child(4) { color: #84cc16; animation-delay: 0.25s; }
+  #search-animation-container span:nth-child(5) { color: #22c55e; animation-delay: 0.3s; }
+  #search-animation-container span:nth-child(6) { color: #14b8a6; animation-delay: 0.35s; }
+  #search-animation-container span:nth-child(8) { color: #3b82f6; animation-delay: 0.45s; }
+  #search-animation-container span:nth-child(9) { color: #6366f1; animation-delay: 0.5s; }
+  #search-animation-container span:nth-child(10) { color: #8b5cf6; animation-delay: 0.55s; }
+  #search-animation-container span:nth-child(12) { color: #d946ef; animation-delay: 0.65s; }
+  #search-animation-container span:nth-child(13) { color: #ec4899; animation-delay: 0.7s; }
+  #search-animation-container span:nth-child(14) { color: #f43f5e; animation-delay: 0.75s; }
+  #search-animation-container span:nth-child(15) { color: #ef4444; animation-delay: 0.8s; }
+  #search-animation-container span:nth-child(16) { color: #f97316; animation-delay: 0.85s; }
+  #search-animation-container span:nth-child(17) { color: #eab308; animation-delay: 0.9s; }
+  
+  @keyframes bounce-in {
+      from { opacity: 0; transform: translateY(20px) scale(0.8); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes teleport-in {
+      from { opacity: 0; transform: scale(0.5) translateY(-50px); filter: blur(5px); }
+      to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+  }
+  @keyframes pulse-scan {
+      0% { transform: scale(1); text-shadow: 0 0 5px currentColor; }
+      50% { transform: scale(1.4); text-shadow: 0 0 25px currentColor; }
+      100% { transform: scale(1); text-shadow: 0 0 5px currentColor; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header-container">
+    <h1 id="logoHeader">Customer EMI Portal</h1>
+    <h2 id="subHeader">for Retail</h2>
+</div>
+
+<div style="text-align: center;">
+    <button id="homeButton">🏠 Go to Home</button>
+</div>
+
+<div class="top-toolbar">
+    <button id="refreshDataBtn" type="button">🔄 Refresh</button>
+    <span id="dataStatus" class="data-status">Data: loading…</span>
+</div>
+
+<input id="search" type="text" placeholder="Search by IMEI, Aadhaar or Name (min 3 characters)" />
+
+<div id="running-section">
+<div class="section-title"><span class="indicator red-ball"></span> EMI Running</div>
+<div class="table-container" id="running-results"></div>
+</div>
+
+<div id="complete-section">
+<div class="section-title"><span class="indicator green-ball"></span> EMI Complete</div>
+<div class="table-container" id="complete-results"></div>
+</div>
+
+<footer>
+    <a id="logoLink" onclick="handleLogoClick(event)">
+        <span>Powered by</span>
+        <img id="poweredByLogo" src="https://i.ibb.co/KjJv3LND/1757409357370.png" alt="Developer Logo">
+    </a>
+</footer>
+
+<!-- Fine Alert Overlay -->
+<div id="fine-alert-overlay">
+    <div id="fine-alert-modal">
+        <div id="fine-alert-icon">⚠️</div>
+        <h2 id="fine-alert-title">FINE DUE</h2>
+        <h3 id="fine-amount-text"></h3>
+        <button id="fine-alert-close-btn">Close</button>
+    </div>
+</div>
+
+<!-- First EMI Alert Overlay -->
+<div id="first-emi-alert-overlay">
+    <div id="first-emi-alert-modal">
+        <div id="first-emi-alert-icon">ℹ️</div>
+        <h2>1st EMI Calculation</h2>
+        <p id="first-emi-calculation"></p>
+        <button id="first-emi-alert-close-btn">OK</button>
+    </div>
+</div>
+
+<!-- Success Alert Overlay -->
+<div id="success-alert-overlay">
+    <div id="success-alert-modal">
+        <div id="success-alert-icon">✅</div>
+        <h2>Success</h2>
+        <p>EMI updated successfully.</p>
+        <button id="success-alert-close-btn">OK</button>
+    </div>
+</div>
+
+<!-- EMI Collect Modal Overlay -->
+<div id="emi-collect-overlay">
+    <div id="emi-collect-modal">
+        <h2>EMI Collection</h2>
+        <div class="collect-form-group">
+            <label for="collect-emi-amount">EMI Payment</label>
+            <input type="number" id="collect-emi-amount" placeholder="Enter EMI amount">
+        </div>
+        <div class="collect-form-group" id="first-emi-charge-group" style="display:none;">
+            <label for="collect-first-emi-charge">1st EMI Charge</label>
+            <input type="number" id="collect-first-emi-charge" placeholder="Enter 1st EMI charge">
+        </div>
+        <div class="collect-form-group">
+            <label for="collect-fine-amount">Fine Payment</label>
+            <input type="number" id="collect-fine-amount" placeholder="Enter Fine amount">
+        </div>
+        <div class="modal-actions">
+            <button id="collect-close-btn">Close</button>
+            <button id="collect-submit-btn">EMI COLLECT</button>
+        </div>
+    </div>
+</div>
+
+<!-- Slip Display Overlay -->
+<div id="slip-display-overlay">
+    <div id="slip-display-modal">
+        <div id="slip-container-wrapper">
+            <!-- Slip content will be injected here -->
+        </div>
+        <div class="modal-actions" style="margin-top: 15px;">
+            <button id="download-slip-btn" class="payment-details-button">Download</button>
+            <button id="share-slip-btn" class="emi-collect-button">Share</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Logo Animation Overlay -->
+<div id="logo-animation-overlay">
+    <div id="telepoint-animation-container">
+        <span>T</span><span>e</span><span>l</span><span>e</span><span>p</span><span id="special-char">🔍</span><span>i</span><span>n</span><span>t</span>
+    </div>
+</div>
+
+<!-- Search Animation Overlay -->
+<div id="search-animation-overlay">
+    <div id="search-animation-container">
+        <span>S</span><span>e</span><span>a</span><span>r</span><span>c</span><span>h</span>
+        <span>&nbsp;</span>
+        <span>E</span><span>m</span><span>i</span>
+        <span>&nbsp;</span>
+        <span>d</span><span>e</span><span>t</span><span>a</span><span>i</span><span>l</span><span>s</span>
+    </div>
+</div>
+
+
+<script>
+// APIs (SheetDB)
+// Running API
+const runningApi = "https://sheetdb.io/api/v1/l070e3i58rjts";
+// Success/Complete API
+const completeApi = "https://sheetdb.io/api/v1/xdmvx2tr9iiwc";
+const collectApi = "https://script.google.com/macros/s/AKfycbxzZEKY0D28LK74FCWBRragDzcwfX4bBTmZNqHm_gvnyMGarBdbJ7p5-rq9m45AZjuz4A/exec"; 
+
+const searchInput = document.getElementById('search');
+const runningResults = document.getElementById('running-results');
+const completeResults = document.getElementById('complete-results');
+const homeButton = document.getElementById('homeButton');
+const refreshDataBtn = document.getElementById('refreshDataBtn');
+const dataStatus = document.getElementById('dataStatus');
+const fineAlertOverlay = document.getElementById('fine-alert-overlay');
+const fineAlertCloseBtn = document.getElementById('fine-alert-close-btn');
+const firstEmiAlertOverlay = document.getElementById('first-emi-alert-overlay');
+const firstEmiAlertCloseBtn = document.getElementById('first-emi-alert-close-btn');
+const subHeader = document.getElementById('subHeader');
+const searchAnimationOverlay = document.getElementById('search-animation-overlay');
+
+
+// EMI Collect and Alert elements
+const emiCollectOverlay = document.getElementById('emi-collect-overlay');
+const collectSubmitBtn = document.getElementById('collect-submit-btn');
+const collectCloseBtn = document.getElementById('collect-close-btn');
+const slipDisplayOverlay = document.getElementById('slip-display-overlay');
+const firstEmiChargeGroup = document.getElementById('first-emi-charge-group');
+const collectFirstEmiChargeInput = document.getElementById('collect-first-emi-charge');
+const downloadSlipBtn = document.getElementById('download-slip-btn');
+const shareSlipBtn = document.getElementById('share-slip-btn');
+const successAlertOverlay = document.getElementById('success-alert-overlay');
+const successAlertCloseBtn = document.getElementById('success-alert-close-btn');
+
+
+let runningData = [], completeData = [];
+let completeEntries = new Map();
+
+function handleLogoClick(event) {
+  event.preventDefault(); 
+  const overlay = document.getElementById('logo-animation-overlay');
+  overlay.classList.add('active');
+
+  setTimeout(() => {
+    overlay.classList.remove('active');
+  }, 3000);
+}
+
+// --- ROBUST DATA FETCH (SheetDB) ---
+const CACHE_KEY = 'emi_portal_cache_maa_kali_watch_and_telecom';
+const CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+function setDataStatus(text) {
+  if (!dataStatus) return;
+  dataStatus.textContent = text;
+}
+
+function loadCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return false;
+    const obj = JSON.parse(raw);
+    if (!obj || !obj.running || !obj.complete) return false;
+    runningData = obj.running;
+    completeData = obj.complete;
+    rebuildCompleteEntries();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function saveCache() {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      t: Date.now(),
+      running: runningData,
+      complete: completeData
+    }));
+  } catch (e) {
+    // ignore quota errors
+  }
+}
+
+function rebuildCompleteEntries(){
+  completeEntries = new Map();
+  (completeData || []).forEach(entry => {
+    const imei = getCaseInsensitive(entry, 'IMEI NO');
+    if (imei) completeEntries.set(imei, entry);
+  });
+}
+
+async function fetchJsonWithRetry(url, attempts = 4) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      lastErr = err;
+      // exponential backoff + jitter
+      const delay = Math.min(8000, 600 * Math.pow(2, i)) + Math.floor(Math.random() * 250);
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
+}
+
+async function fetchDataRobust({ showStatus = false } = {}) {
+  if (showStatus) setDataStatus('Data: refreshing…');
+  try {
+    const [r, c] = await Promise.all([
+      fetchJsonWithRetry(runningApi, 4),
+      fetchJsonWithRetry(completeApi, 4)
+    ]);
+    runningData = Array.isArray(r) ? r : (r?.data || r || []);
+    completeData = Array.isArray(c) ? c : (c?.data || c || []);
+    rebuildCompleteEntries();
+    saveCache();
+    setDataStatus('Data: updated');
+    // keep existing UI logic: only re-render current search
+    renderResults();
+    return true;
+  } catch (err) {
+    console.error('API fetch error:', err);
+    setDataStatus('Data: retry failed');
+    return false;
+  }
+}
+
+async function fetchData() {
+  // 1) Load cache immediately (silent, no background shown)
+  const hadCache = loadCache();
+  if (hadCache) {
+    setDataStatus('Data: cached');
+  } else {
+    setDataStatus('Data: loading…');
+  }
+
+  // 2) Background refresh with retry (still no overlay)
+  await fetchDataRobust({ showStatus: !hadCache });
+}
+
+function getCaseInsensitive(entry, key) {
+  if (!entry) return '';
+  const foundKey = Object.keys(entry).find(k => k.trim().toLowerCase() === key.trim().toLowerCase());
+  return foundKey ? entry[foundKey] : '';
+}
+
+
+// --- SECURITY / ROBUST UI HELPERS ---
+function escapeHtml(value){
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeJsString(value){
+  return String(value ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '');
+}
+
+function normalizeRetailName(name){
+  return String(name || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+}
+
+
+/* ===== HARD RETAILER LOCK (BACKGROUND ONLY) ===== */
+const RETAILER_LOCK = 'MAA KALI WATCH AND TELECOM';
+
+function isAllowedRetailer(entry){
+  const rn = normalizeRetailName(getCaseInsensitive(entry,'RETAIL NAME'));
+  return rn === normalizeRetailName(RETAILER_LOCK);
+}
+// --- CUSTOMER IMAGE HELPERS ---
+function extractImageUrl(raw) {
+  if (!raw) return '';
+  const s = String(raw).trim();
+  // Direct URL
+  if (/^https?:\/\//i.test(s)) {
+    // basic allowlist: only http(s)
+    return s;
+  }
+  // Extract src="..." from <img>
+  const m = s.match(/src\s*=\s*["']([^"']+)["']/i);
+  const url = m ? m[1] : '';
+  if (!url) return '';
+  if (!/^https?:\/\//i.test(url)) return '';
+  return url;
+}
+
+function getCustomerImageUrl(entry) {
+  // Supports both headers: Image / CUSTOMAR IMAGE
+  const raw = getCaseInsensitive(entry, 'Image') || getCaseInsensitive(entry, 'CUSTOMAR IMAGE') || '';
+  return extractImageUrl(raw);
+}
+
+function customerImageSectionHtml(imgUrl) {
+  if (!imgUrl) return '';
+  const safeUrl = escapeHtml(imgUrl);
+  return `
+    <div class="customer-image-wrap">
+      <div class="customer-image-title">CUSTOMAR IMAGE</div>
+      <img src="${safeUrl}" alt="Customer Image" loading="lazy" referrerpolicy="no-referrer" />
+    </div>
+  `;
+}
+
+function matches(entry, term) {
+  const imei = getCaseInsensitive(entry, 'IMEI NO') || '';
+  const name = (getCaseInsensitive(entry, 'CUST NAME') || '').toLowerCase();
+  const aadhar = getCaseInsensitive(entry, 'Aadhar No') || '';
+  return (term.length >= 15 && imei === term) ||
+         (term.length >= 3 && name.includes(term.toLowerCase())) ||
+         (term.length >= 12 && aadhar === term);
+}
+
+function getNumber(v){
+  if(v==null) return 0;
+  const n = parseFloat(String(v).toString().replace(/[^0-9.\-]/g,''));
+  return isNaN(n)?0:n;
+}
+
+function ordinal(n){
+  if(n===1) return '1st';
+  if(n===2) return '2nd';
+  if(n===3) return '3rd';
+  return n + 'th';
+}
+
+function getFineValue(entry, i) {
+  const fineRegex = new RegExp(`^Late Fine\\s*-\\s*${i}$`, 'i');
+  const matchingKey = Object.keys(entry).find(key => fineRegex.test(key));
+  return matchingKey ? entry[matchingKey] : '';
+}
+
+function getEmiAmount(entry, i) {
+  const emiRegex = new RegExp(`^EMI\\s*-\\s*${i}$`, 'i');
+  const matchingKey = Object.keys(entry).find(key => emiRegex.test(key));
+  return matchingKey ? entry[matchingKey] : '';
+}
+
+function getPaymentDate(entry, i) {
+  const dateRegex = new RegExp(`^${ordinal(i)}\\s*payment date$`, 'i');
+  const matchingKey = Object.keys(entry).find(key => dateRegex.test(key));
+  return matchingKey ? entry[matchingKey] : '';
+}
+
+function getFinePaymentDate(entry, i) {
+  const keyName = ordinal(i);
+  return entry[keyName] || '';
+}
+
+function computeFineDueCount(entry){
+  let count = 0;
+  for(let i=1; i<=12; i++){
+    const fineRaw = getFineValue(entry, i) || '';
+    if(String(fineRaw).trim().toLowerCase() === 'due'){
+      count++;
+    }
+  }
+  return count;
+}
+
+function computeFinePaidCount(entry){
+    let count = 0;
+    for(let i = 1; i <= 12; i++){
+        const fineRaw = getFineValue(entry, i) || '';
+        const fineNum = getNumber(fineRaw);
+        if(fineNum > 0){
+            count++;
+        }
+    }
+    return count;
+}
+
+function searchByImei(imei) {
+    searchInput.value = imei;
+    renderResults();
+    window.scrollTo(0, 0);
+}
+
+function renderRunningDetails(entry) {
+   let html = '<div id="capture-area">';
+   const imgUrl = getCustomerImageUrl(entry);
+   html += '<div class="details-header">Customer EMI Details....</div>';
+   // Show customer image centered, just above the customer details table
+   html += customerImageSectionHtml(imgUrl);
+   html += '<table class="customer-info-table"><tbody>';
+   const fields = ['IMEI NO', 'RETAIL NAME', 'CUST NAME', 'Aadhar No', 'CUSTOMER NUMBER', 'ALTARNET NUMBER', 'HANDSET MODEL NO', 'Purchase Date', '1st EMI', '1st EMI Charge', 'Handset value', 'Down Payment', 'EMI Tenure', 'EMI Amount', 'Total Payble Amount', 'Total Due Amount', 'Paid Amount'];
+   fields.forEach(f => {
+       html += `<tr><th>${f}</th><td>${escapeHtml(getCaseInsensitive(entry, f) || '')}</td></tr>`;
+   });
+   const fineCount = computeFineDueCount(entry);
+   html += `<tr><th>Fine Due Count</th><td>${fineCount}</td></tr>`;
+   html += '</tbody></table>';
+   html += '<div class="details-header">Payment Details....</div>';
+   html += '<table class="payment-details-table"><thead>';
+   html += '<tr><th>Payment</th><th>Amount</th><th>Payment Date</th><th>Fine Status</th><th>Fine Payment Date</th></tr></thead><tbody>';
+   for (let i = 1; i <= 12; i++) {
+       const amt = escapeHtml(getEmiAmount(entry, i) || '');
+       const pdate = escapeHtml(getPaymentDate(entry, i) || '');
+       const fineRaw = getFineValue(entry, i) || '';
+       const finePay = escapeHtml(getFinePaymentDate(entry, i) || '');
+       let fineShow = (String(fineRaw).trim().toLowerCase() === 'due') ? '<span class="due">DUE</span>' : escapeHtml(fineRaw || '');
+       html += `<tr><td>${ordinal(i)} Pay</td><td>${escapeHtml(amt)}</td><td>${escapeHtml(pdate)}</td><td>${fineShow}</td><td>${escapeHtml(finePay)}</td></tr>`;
+   }
+   html += '</tbody></table>';
+   
+    const dueAmount = getCaseInsensitive(entry, 'Total Due Amount') || '0';
+    const paidAmount = getCaseInsensitive(entry, 'Paid Amount') || '0';
+    const dueAmountSafe = escapeHtml(dueAmount);
+    const paidAmountSafe = escapeHtml(paidAmount);
+    const finePending = computeFineDueCount(entry) * 450;
+    const finePaid = computeFinePaidCount(entry) * 450;
+    const totalDue = getNumber(dueAmount) + finePending;
+
+    html += `<div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; border: 1px solid #0D47A1; font-size: 1.1rem;">
+       <h3 style="margin-top: 0; text-align: center; color: #0D47A1;">Account Summary</h3>
+       <p style="margin: 8px 0; color: #dc2626; font-weight: 700;"><strong>EMI Due Amount:</strong> ${dueAmountSafe}</p>
+       <p style="margin: 8px 0; color: #16a34a; font-weight: 700;"><strong>Paid Amount:</strong> ${paidAmountSafe}</p>
+       <p style="margin: 8px 0; color: #dc2626; font-weight: 700;"><strong>Fine Pending:</strong> ₹ ${finePending}</p>
+       <p style="margin: 8px 0; color: #16a34a; font-weight: 700;"><strong>Fine Paid:</strong> ₹ ${finePaid}</p>
+       <p style="margin: 12px 0 0 0; color: #dc2626; font-weight: 700; border-top: 2px solid #0D47A1; padding-top: 12px;"><strong>Total Due (EMI + Fine) =</strong> ₹ ${totalDue}</p>
+     </div>`;
+   html += '</div>';
+   
+   html += `<div class="single-result-actions button-group">
+                <button class="share-button-new" onclick="shareSingleRunningResult('${escapeJsString(getCaseInsensitive(entry, 'IMEI NO'))}')">📤 Share Details</button>
+                <button class="emi-collect-button" onclick="openCollectModal('${escapeJsString(getCaseInsensitive(entry, 'IMEI NO'))}')">💰 EMI Collect</button>
+            </div>`;
+
+    if (finePending > 0) {
+        setTimeout(() => {
+            document.getElementById('fine-amount-text').textContent = `Fine Pending: ₹ ${finePending}`;
+            fineAlertOverlay.classList.add('visible');
+        }, 500);
+    }
+    
+    const firstEmiPayment = getEmiAmount(entry, 1) || '';
+    const firstEmiCharge = getNumber(getCaseInsensitive(entry, '1st EMI Charge'));
+    const emiAmount = getNumber(getCaseInsensitive(entry, 'EMI Amount'));
+    
+    if (!firstEmiPayment && firstEmiCharge > 0) {
+        const totalFirstPayment = emiAmount + firstEmiCharge;
+        setTimeout(() => {
+            document.getElementById('first-emi-calculation').innerHTML = 
+                `1st EMI: ₹ ${emiAmount}<br>1st EMI Charge: ₹ ${firstEmiCharge}<hr><strong>Total: ₹ ${totalFirstPayment}</strong>`;
+            firstEmiAlertOverlay.classList.add('visible');
+        }, 600);
+    }
+
+   return html;
+}
+
+function renderRunningMultipleResultsTable(data) {
+   const headers = ["IMEI NO", "RETAIL NAME", "CUST NAME", "Father Name", "Aadhar No", "CUSTOMER NUMBER", "ALTARNET NUMBER", "HANDSET MODEL NO", "Purchase Date", "1st EMI", "1st EMI Charge", "Handset value", "Down Payment", "EMI Tenure", "EMI Amount", "Total Payble Amount", "Total Due Amount", "Paid Amount", "Fine Due Count", "1st pay", "2nd pay", "3rd pay", "4th pay", "5th pay", "6th pay", "7th pay", "8th pay", "9th pay", "10th pay", "11th pay", "12th pay"];
+   let tableHtml = `<table><thead><tr>`;
+   headers.forEach(h => tableHtml += `<th>${h}</th>`);
+   tableHtml += `</tr></thead><tbody>`;
+   data.forEach(entry => {
+       tableHtml += `<tr>`;
+       headers.forEach(header => {
+           let cellValue = '';
+           if (header === "IMEI NO") {
+               const imei = getCaseInsensitive(entry, 'IMEI NO') ?? '';
+               cellValue = `<a href="#" onclick="event.preventDefault(); searchByImei('${escapeJsString(imei)}')">${escapeHtml(imei)}</a>`;
+           } else {
+               const payMatch = header.match(/^(\d+)(st|nd|rd|th) pay$/);
+               if (payMatch) {
+                   const monthIndex = parseInt(payMatch[1], 10);
+                   cellValue = escapeHtml(getPaymentDate(entry, monthIndex) || '');
+               } else if (header === 'Fine Due Count') {
+                   cellValue = computeFineDueCount(entry);
+               } else {
+                   cellValue = escapeHtml(getCaseInsensitive(entry, header) ?? '');
+               }
+           }
+           tableHtml += `<td>${cellValue}</td>`;
+       });
+       tableHtml += `</tr>`;
+   });
+   tableHtml += `</tbody></table>`;
+   return tableHtml;
+}
+
+function toggleCompletePaymentDetails(imei) {
+    const detailsDiv = document.getElementById(`complete-payment-details-${imei}`);
+    if (!detailsDiv) return;
+
+    if (detailsDiv.style.display !== 'none') {
+        detailsDiv.style.display = 'none';
+        detailsDiv.innerHTML = ''; 
+    } else {
+        const entry = completeEntries.get(imei);
+        if (!entry) {
+            detailsDiv.innerHTML = '<p>Could not load payment details.</p>';
+            return;
+        }
+
+        let tableHtml = '<div class="details-header" style="margin-top: 15px; background-color: #16a34a;">Payment History</div>';
+        tableHtml += '<table class="payment-details-table" style="margin-top: 0;"><thead>';
+        tableHtml += '<tr><th>Payment</th><th>Amount</th><th>Payment Date</th><th>Fine Status</th><th>Fine Payment Date</th></tr></thead><tbody>';
+        for (let i = 1; i <= 12; i++) {
+            const amt = escapeHtml(getEmiAmount(entry, i) || '');
+            const pdate = escapeHtml(getPaymentDate(entry, i) || '');
+            const fineRaw = getFineValue(entry, i) || '';
+            const finePay = escapeHtml(getFinePaymentDate(entry, i) || '');
+            let fineShow = (String(fineRaw).trim().toLowerCase() === 'due') ? `<span class="due">DUE</span>` : escapeHtml(fineRaw || '');
+            tableHtml += `<tr><td>${ordinal(i)} Pay</td><td>${escapeHtml(amt)}</td><td>${escapeHtml(pdate)}</td><td>${fineShow}</td><td>${escapeHtml(finePay)}</td></tr>`;
+        }
+        tableHtml += '</tbody></table>';
+
+        detailsDiv.innerHTML = tableHtml;
+        detailsDiv.style.display = 'block';
+    }
+}
+
+function renderCompleteTable(data) {
+  const headers = ["IMEI NO", "RETAIL NAME", "CUST NAME", "HANDSET MODEL NO", "Purchase Date", "FINE STATUS", "EMI status", "REMARKS"];
+  let tableHtml = '';
+  if (data.length === 1) {
+    let entry = data[0];
+    const imei = getCaseInsensitive(entry, 'IMEI NO');
+    if (imei && !completeEntries.has(imei)) {
+      completeEntries.set(imei, entry);
+    }
+    const finePendingAmount = computeFineDueCount(entry) * 450;
+    
+    tableHtml += `<table class="complete-details-table"><thead><tr><th colspan="2">Customer EMI Details</th></tr></thead><tbody>`;
+    headers.forEach(h => {
+      let cellValue;
+      if (h.toUpperCase() === "FINE STATUS") {
+          cellValue = finePendingAmount > 0 
+              ? `<span class="due">₹ ${finePendingAmount}</span>` 
+              : `<span style="color: #16a34a; font-weight: 700;">Fully Paid ✅</span>`;
+      } else {
+          cellValue = escapeHtml(getCaseInsensitive(entry, h) || '');
+      }
+      tableHtml += `<tr><th>${h}</th><td>${cellValue}</td></tr>`;
+    });
+    tableHtml += `</tbody></table>`;
+    
+    tableHtml += `<div class="button-group">`;
+    tableHtml += `<button class="payment-details-button" onclick="toggleCompletePaymentDetails('${imei}')">Payment Details</button>`;
+    tableHtml += `</div>`;
+    tableHtml += `<div id="complete-payment-details-${imei}" style="display: none;"></div>`;
+    
+    return tableHtml;
+  }
+
+  if (!data || data.length === 0) {
+    return '<p style="text-align: center; margin-top: 20px;">No results found.</p>';
+  }
+
+  tableHtml += `<table><thead><tr>`;
+  headers.forEach(h => tableHtml += `<th>${h}</th>`);
+  tableHtml += `</tr></thead><tbody>`;
+  data.forEach(entry => {
+    tableHtml += `<tr>`;
+    headers.forEach(h => {
+        let cellValue;
+        if (h.toUpperCase() === "FINE STATUS") {
+            const finePendingAmount = computeFineDueCount(entry) * 450;
+            cellValue = finePendingAmount > 0 
+                ? `<span class="due">₹ ${finePendingAmount}</span>` 
+                : `<span style="color: #16a34a; font-weight: 700;">Fully Paid ✅</span>`;
+        } else {
+            cellValue = escapeHtml(getCaseInsensitive(entry, h) || '');
+            if (h === "IMEI NO") {
+                const imeiRaw = getCaseInsensitive(entry, 'IMEI NO') || '';
+                cellValue = `<a href="#" onclick="event.preventDefault(); searchByImei('${escapeJsString(imeiRaw)}')">${escapeHtml(imeiRaw)}</a>`;
+            }
+        }
+        tableHtml += `<td>${cellValue}</td>`;
+    });
+    tableHtml += `</tr>`;
+  });
+  tableHtml += `</tbody></table>`;
+  return tableHtml;
+}
+
+function renderResults() {
+  const term = searchInput.value.trim();
+  
+  runningResults.classList.remove('unzip');
+  completeResults.classList.remove('unzip');
+
+  if (term.length === 0) {
+    runningResults.innerHTML = '';
+    completeResults.innerHTML = '';
+    homeButton.style.display = 'none';
+    return;
+  }
+  if (term.length < 3) {
+    const msg = '<p style="text-align:center;">Enter at least 3 characters for name, 12 for Aadhaar, or 15 for IMEI.</p>';
+    runningResults.innerHTML = msg;
+    completeResults.innerHTML = msg;
+    homeButton.style.display = 'none';
+    return;
+  }
+
+  const runningFiltered = runningData.filter(d => isAllowedRetailer(d) && matches(d, term));
+  const completeFiltered = completeData.filter(d => isAllowedRetailer(d) && matches(d, term));
+  const isSingleResultOverall = (runningFiltered.length + completeFiltered.length) === 1;
+
+  homeButton.style.display = isSingleResultOverall ? 'inline-block' : 'none';
+
+  if (runningFiltered.length > 0) {
+    if (isSingleResultOverall) {
+      runningResults.innerHTML = ''; 
+      void runningResults.offsetWidth; 
+      runningResults.classList.add('unzip');
+    }
+    runningResults.innerHTML = runningFiltered.length === 1 ? renderRunningDetails(runningFiltered[0]) : renderRunningMultipleResultsTable(runningFiltered);
+  } else {
+    runningResults.innerHTML = '<p style="text-align:center;margin-top:20px;">No results found (allowed retailers only).</p>';
+  }
+  
+  if (completeFiltered.length > 0) {
+    if (isSingleResultOverall) {
+      completeResults.innerHTML = '';
+      void completeResults.offsetWidth;
+      completeResults.classList.add('unzip');
+    }
+    completeResults.innerHTML = renderCompleteTable(completeFiltered);
+  } else {
+    completeResults.innerHTML = '<p style="text-align:center;margin-top:20px;">No results found (allowed retailers only).</p>';
+  }
+}
+
+async function shareSingleRunningResult(imei) {
+    const entry = runningData.find(d => getCaseInsensitive(d, 'IMEI NO') === imei);
+    if (!entry) {
+        alert('Could not find data to share.');
+        return;
+    }
+
+    const captureContainer = document.createElement('div');
+    captureContainer.style.position = 'absolute';
+    captureContainer.style.left = '-9999px';
+    captureContainer.style.width = '800px'; 
+    captureContainer.style.background = '#ffffff';
+    captureContainer.style.fontFamily = `'Segoe UI', sans-serif`;
+    
+    let captureHtml = `
+        <style>
+            * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+            .capture-wrapper { padding: 20px; border: 2px solid #0D47A1; }
+            .header { background-color: #0D47A1; color: white; padding: 10px; font-size: 1.2rem; text-align: center; font-weight: bold; }
+            .table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.95rem; }
+            .table th, .table td { border: 1px solid #ccc; padding: 9px; text-align: left; white-space: normal; word-wrap: break-word; }
+            .table th { background-color: #E3F2FD; font-weight: bold; color: #000000; width: 35%; }
+            .summary { margin-top: 15px; padding: 15px; background: #ffffff; border-radius: 5px; font-size: 1rem; }
+            .summary h3 { margin: 0 0 10px 0; text-align: center; color: #0D47A1; font-size: 1.2rem; }
+            .summary p { margin: 8px 0; font-weight: 600; }
+            .due-text { color: #dc2626; }
+            .paid-text { color: #16a34a; }
+            .total-due { margin-top: 12px !important; padding-top: 12px !important; border-top: 2px solid #ccc; }
+        </style>
+        <div class="capture-wrapper">`;
+    
+    captureHtml += `<div class="header">Customer EMI Details....</div><table class="table">`;
+    const fields = ['IMEI NO', 'RETAIL NAME', 'CUST NAME', 'Aadhar No', 'CUSTOMER NUMBER', 'ALTARNET NUMBER', 'HANDSET MODEL NO', 'Purchase Date', '1st EMI', '1st EMI Charge', 'Handset value', 'Down Payment', 'EMI Tenure', 'EMI Amount', 'Total Payble Amount', 'Total Due Amount', 'Paid Amount', 'Fine Due Count'];
+    fields.forEach(f => {
+        captureHtml += `<tr><th>${f}</th><td>${escapeHtml(getCaseInsensitive(entry, f) ?? '')}</td></tr>`;
+    });
+    captureHtml += `</table>`;
+
+    captureHtml += `<div class="header">Payment Details....</div><table class="table"><thead><tr><th>Payment</th><th>Amount</th><th>Payment Date</th><th>Fine Status</th><th>Fine Payment Date</th></tr></thead><tbody>`;
+    for (let i = 1; i <= 12; i++) {
+        const amt = getEmiAmount(entry, i) || '';
+        const pdate = getPaymentDate(entry, i) || '';
+        const fineRaw = getFineValue(entry, i) || '';
+        const finePay = getFinePaymentDate(entry, i) || '';
+        let fineShow = (String(fineRaw).trim().toLowerCase() === 'due') ? '<span style="color: #dc2626; font-weight: 700;">DUE</span>' : fineRaw;
+        captureHtml += `<tr><td>${ordinal(i)} Pay</td><td>${amt}</td><td>${pdate}</td><td>${fineShow}</td><td>${finePay}</td></tr>`;
+    }
+    captureHtml += `</tbody></table>`;
+    
+    const dueAmount = getCaseInsensitive(entry, 'Total Due Amount') || '0';
+    const paidAmount = getCaseInsensitive(entry, 'Paid Amount') || '0';
+    const finePending = computeFineDueCount(entry) * 450;
+    const finePaid = computeFinePaidCount(entry) * 450;
+    const totalDue = getNumber(dueAmount) + finePending;
+    captureHtml += `<div class="summary">
+        <h3>Account Summary</h3>
+        <p class="due-text"><strong>EMI Due Amount:</strong> ${dueAmountSafe}</p>
+        <p class="paid-text"><strong>Paid Amount:</strong> ${paidAmountSafe}</p>
+        <p class="due-text"><strong>Fine Pending:</strong> ₹ ${finePending}</p>
+        <p class="paid-text"><strong>Fine Paid:</strong> ₹ ${finePaid}</p>
+        <p class="due-text total-due"><strong>Total Due (EMI + Fine) =</strong> ₹ ${totalDue}</p>
+    </div>`;
+    captureHtml += `</div>`;
+
+    captureContainer.innerHTML = captureHtml;
+    document.body.appendChild(captureContainer);
+
+    try {
+        const canvas = await html2canvas(captureContainer, { scale: 2 });
+        canvas.toBlob(async (blob) => {
+            if (!blob) { alert('Failed to create image blob.'); return; }
+            const file = new File([blob], `emi-details-${imei}.png`, { type: "image/png" });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'EMI Running Details', text: `Details for IMEI: ${imei}` });
+            } else {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `emi-details-${imei}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+        }, 'image/png');
+    } catch(err) {
+        console.error("Share failed:", err);
+        alert("An error occurred while trying to share the details.");
+    } finally {
+        document.body.removeChild(captureContainer);
+    }
+}
+
+// --- EMI COLLECT FUNCTIONS ---
+
+function openCollectModal(imei) {
+    const entry = runningData.find(d => getCaseInsensitive(d, 'IMEI NO') === imei);
+    if (!entry) {
+        alert('Customer data not found.');
+        return;
+    }
+    const emiAmount = getNumber(getCaseInsensitive(entry, 'EMI Amount')) || 0;
+    const fineAmount = computeFineDueCount(entry) * 450;
+
+    // Show 1st EMI Charge inside EMI Collect only if 1st EMI is not paid yet.
+    // IMPORTANT: "EMI - 1" often contains the scheduled EMI amount (always present),
+    // so we detect payment using payment date / 1st pay fields instead.
+    // Robust detection: treat 1st EMI as "paid" only if a 1st payment date exists.
+    // (In many sheets, columns like "1st pay" / "EMI - 1" can contain scheduled amounts,
+    // which would incorrectly mark the 1st EMI as paid.)
+    const firstEmiPaid = String(getPaymentDate(entry, 1) || '').trim() !== '';
+    const firstEmiCharge = getNumber(getCaseInsensitive(entry, '1st EMI Charge'));
+    if (!firstEmiPaid && firstEmiCharge > 0) {
+        firstEmiChargeGroup.style.display = 'block';
+        collectFirstEmiChargeInput.value = firstEmiCharge;
+    } else {
+        firstEmiChargeGroup.style.display = 'none';
+        collectFirstEmiChargeInput.value = 0;
+    }
+
+    document.getElementById('collect-emi-amount').value = emiAmount;
+    document.getElementById('collect-fine-amount').value = fineAmount > 0 ? fineAmount : 0;
+    
+    collectSubmitBtn.dataset.imei = imei;
+    
+    emiCollectOverlay.classList.add('visible');
+}
+
+async function generateCollectionSlip() {
+    collectSubmitBtn.disabled = true; // Disable button immediately
+    const imei = collectSubmitBtn.dataset.imei;
+    const entry = runningData.find(d => getCaseInsensitive(d, 'IMEI NO') === imei);
+    if (!entry) {
+        alert('Error. Customer not found.');
+        collectSubmitBtn.disabled = false;
+        return;
+    }
+
+    const custName = getCaseInsensitive(entry, 'CUST NAME');
+    const emiAuto = getCaseInsensitive(entry, 'EMI Amount');
+    const retailerName = getCaseInsensitive(entry, 'RETAIL NAME');
+    // Base EMI amount collected (usually equals the scheduled EMI amount)
+    const emiCollectedBaseRaw = document.getElementById('collect-emi-amount').value;
+    const firstEmiChargeCollected = firstEmiChargeGroup.style.display !== 'none'
+        ? getNumber(collectFirstEmiChargeInput.value)
+        : 0;
+    const finePayment = document.getElementById('collect-fine-amount').value;
+
+    // NEW: Save EMI Payment (Collected) as (EMI + 1st EMI Charge) when 1st EMI charge exists.
+    // This prevents confusion in the sheet and matches your requested format.
+    const emiCollectedBase = getNumber(emiCollectedBaseRaw);
+    const emiCollectedFinal = emiCollectedBase + getNumber(firstEmiChargeCollected);
+    const now = new Date();
+    
+    const formattedDate = now.toISOString().split('T')[0]; 
+    const formattedTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+
+    const postData = {
+        data: [{
+            "Customer Name": custName,
+            "IMEI": imei,
+            "EMI Payment (Auto)": emiAuto,
+            // IMPORTANT: This is the total EMI collected including 1st EMI charge (if any)
+            "EMI Payment (Collected)": emiCollectedFinal,
+            // Save 1st EMI Charge collected.
+            // IMPORTANT: Sending multiple keys was causing column shifting in some Google Script setups.
+            // Your EMI_Collection sheet header (as in your screenshot) is: "1st emi charge".
+            "1st emi charge": firstEmiChargeCollected,
+            "Fine Payment": finePayment,
+            "Date": formattedDate,
+            "Time": formattedTime,
+            "Retailer": retailerName
+        }]
+    };
+    
+    try {
+        const response = await fetch(collectApi, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(postData)
+        });
+        successAlertOverlay.classList.add('visible');
+    } catch (error) {
+        console.error("Failed to post EMI collection:", error);
+        alert('❌ Failed to update EMI Collect.');
+    } finally {
+        // This part runs regardless of success or failure, to generate the offline slip.
+        const totalPaid = getNumber(emiCollectedFinal) + getNumber(finePayment);
+        let collectionDetailsHtml = '';
+        if (getNumber(firstEmiChargeCollected) > 0) {
+            collectionDetailsHtml += `<p><strong>EMI Collected =</strong> ₹ ${emiCollectedBase} + ₹ ${firstEmiChargeCollected} = <strong>₹ ${emiCollectedFinal}</strong></p>`;
+            collectionDetailsHtml += `<p>(Includes 1st EMI Charge)</p>`;
+        } else if (getNumber(emiCollectedFinal) > 0) {
+            collectionDetailsHtml += `<p>EMI Collect - ₹ ${emiCollectedFinal}</p>`;
+        }
+        if (getNumber(finePayment) > 0) collectionDetailsHtml += `<p>Fine Collect - ₹ ${finePayment}</p>`;
+
+        const slipHtml = `
+            <div id="slip-container">
+                <h3>Collection Slip</h3>
+                <p><strong>Customer Name:</strong> ${escapeHtml(custName)}</p>
+                <p><strong>Customer IMEI:</strong> ${escapeHtml(imei)}</p>
+                <p><strong>EMI Amount:</strong> ₹ ${escapeHtml(emiAuto)}</p>
+                <hr>
+                <h4>Collection Details</h4>
+                ${collectionDetailsHtml}
+                <p><strong>Total Payment Amount:</strong> ₹ ${totalPaid}</p>
+                <hr>
+                <p><strong>Date:</strong> ${now.toLocaleDateString('en-GB')}</p>
+                <p><strong>Time:</strong> ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+                <p><strong>Need to collect from retailer:</strong> ${escapeHtml(retailerName)}</p>
+            </div>`;
+
+        document.getElementById('slip-container-wrapper').innerHTML = slipHtml;
+        
+        shareSlipBtn.dataset.custName = custName;
+        shareSlipBtn.dataset.imei = imei;
+        shareSlipBtn.dataset.totalPaid = totalPaid;
+        shareSlipBtn.dataset.date = now.toLocaleDateString('en-GB');
+        shareSlipBtn.dataset.time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        shareSlipBtn.dataset.retailer = retailerName;
+
+        emiCollectOverlay.classList.remove('visible');
+        slipDisplayOverlay.classList.add('visible');
+        collectSubmitBtn.disabled = false; // Re-enable button
+    }
+}
+
+
+async function shareSlip() {
+    const slipElement = document.getElementById('slip-container');
+    if (!slipElement) return;
+
+    const { custName, imei, totalPaid, date, time, retailer } = shareSlipBtn.dataset;
+
+    const shareText = `*Collection Summary*\n\n` +
+        `Customer: ${custName}\n` +
+        `IMEI: ${imei}\n` +
+        `Total Paid: ₹ ${totalPaid}\n` +
+        `Date: ${date} ${time}\n` +
+        `From: ${retailer}`;
+
+    try {
+        await navigator.clipboard.writeText(shareText);
+        alert('Summary copied to clipboard!');
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+    }
+    
+    try {
+        const canvas = await html2canvas(slipElement, { scale: 2 });
+        canvas.toBlob(async (blob) => {
+            if (!blob) { alert('Failed to create image.'); return; }
+            const file = new File([blob], `collection-slip-${imei}.png`, { type: 'image/png' });
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'EMI Collection Slip',
+                    text: shareText
+                });
+            } else {
+                // If share is not supported, allow download instead.
+                await downloadSlip();
+                alert('Share not supported here. Slip was downloaded and summary copied to clipboard.');
+            }
+        }, 'image/png');
+    } catch(err) {
+        console.error("Share failed:", err);
+        alert("An error occurred while sharing.");
+    }
+}
+
+async function downloadSlip() {
+    const slipElement = document.getElementById('slip-container');
+    if (!slipElement) return;
+
+    const { imei } = shareSlipBtn.dataset;
+
+    try {
+        const canvas = await html2canvas(slipElement, { scale: 2 });
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) {
+            alert('Failed to create image.');
+            return;
+        }
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `collection-slip-${imei || 'unknown'}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    } catch (err) {
+        console.error('Download failed:', err);
+        alert('An error occurred while downloading the slip.');
+    }
+}
+
+// NOTE: Homepage data download is intentionally disabled for security.
+
+
+// --- EVENT LISTENERS ---
+
+homeButton.addEventListener('click', () => {
+    searchInput.value = '';
+    renderResults();
+});
+
+refreshDataBtn.addEventListener('click', async () => {
+    refreshDataBtn.disabled = true;
+    const ok = await fetchDataRobust({ showStatus: true });
+    if (!ok) {
+        // Auto retry once more if refresh failed
+        await fetchDataRobust({ showStatus: true });
+    }
+    refreshDataBtn.disabled = false;
+});
+
+
+
+fineAlertCloseBtn.addEventListener('click', () => {
+    fineAlertOverlay.classList.remove('visible');
+});
+
+firstEmiAlertCloseBtn.addEventListener('click', () => {
+    firstEmiAlertOverlay.classList.remove('visible');
+});
+
+successAlertCloseBtn.addEventListener('click', () => {
+    successAlertOverlay.classList.remove('visible');
+});
+
+subHeader.addEventListener('click', () => {
+    searchAnimationOverlay.classList.add('active');
+    setTimeout(() => {
+        searchAnimationOverlay.classList.remove('active');
+    }, 2000); 
+});
+
+// New Listeners
+collectSubmitBtn.addEventListener('click', generateCollectionSlip);
+collectCloseBtn.addEventListener('click', () => emiCollectOverlay.classList.remove('visible'));
+shareSlipBtn.addEventListener('click', shareSlip);
+downloadSlipBtn.addEventListener('click', downloadSlip);
+// Close slip overlay when clicking outside the modal content
+slipDisplayOverlay.addEventListener('click', (e) => {
+    if (e.target === slipDisplayOverlay) {
+        slipDisplayOverlay.classList.remove('visible');
+    }
+});
+
+
+searchInput.addEventListener('input', renderResults);
+fetchData();
+</script>
+</body>
+</html>
+
